@@ -1,0 +1,28 @@
+version: '3.7'
+
+services:
+  redis:
+    image: "redis:latest"
+    container_name: thumbsup-redis
+
+  bot:
+    build: ./bot
+    image: thumbsup-bot-image
+    container_name: thumbsup-bot
+    restart: always
+    environment:
+      BOT_URL: t.me/ThumpsUpBot
+      BOT_TOKEN: 778885705:AAH-Bl8SRT0EHts3TZmY-5clOYHjjO7_Jew1000
+    depends_on:
+      - redis
+
+  celery:
+    build: ./tasks
+    image: thumbsup-celery-image
+    container_name: thumbsup-celery
+    restart: always
+    depends_on:
+      - redis
+
+# docker-compose rm -fs
+# docker image rm $(docker images thumbsup* -q) -f
