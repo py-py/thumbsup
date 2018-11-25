@@ -3,16 +3,28 @@ from flask_login import login_user, current_user, logout_user, login_required
 from werkzeug.urls import url_parse
 
 from app import app
-from app.forms import LoginForm
-from app.models import User
+from app.forms import LoginForm, ProxyForm
+from app.models import User, Proxy, get_or_create
 
 
 @app.route('/')
 @app.route('/index')
-@login_required
+# @login_required
 def index():
-    user = {'username': 'Me:)'}
-    return render_template('index.html', title='Index', user=user)
+    proxies = Proxy.query.all()
+    return render_template('index.html', title='Index', proxies=proxies)
+
+
+@app.route('/proxy', methods=['GET', 'POST'])
+def proxy():
+    form = ProxyForm()
+    if form.validate_on_submit():
+        host = form.host.data
+        port = form.port.data
+
+        instance, _ = get_or_create(model=Proxy, host=host, port=port)
+        return redirect(url_for('proxy'))
+    return render_template('proxy.html', title='Adding proxy host', form=form)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -34,7 +46,7 @@ def login():
         if not next_page or url_parse(next_page).netloc != '':
             next_page = url_for('index')
         return redirect(next_page)
-    return render_template('adding_proxy.html', title='Sign In', form=form)
+    return render_template('proxy.html', title='Sign In', form=form)
 
 
 @app.route('/logout')

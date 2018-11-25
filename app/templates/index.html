@@ -1,10 +1,39 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>Hi, {{ current_user.username }}!</h1>
-    <ul>
-    {% for proxy in proxies %}
-        <li>{{ proxy.host }} {{ proxy.port }}</li>
-    {% endfor %}
-    </ul>
+
+    <div class="d-flex justify-content-between">
+        <div class="p-0">
+            <h1>List of proxies</h1>
+        </div>
+
+        {# TODO: change#}
+        {% if not current_user.is_authenticated %}
+        <div class="d-flex align-items-center p-0">
+            <a href="{{ url_for('proxy') }}">
+                <button class="btn btn-success">Add Proxy</button>
+            </a>
+        </div>
+        {% endif %}
+
+    </div>
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Host</th>
+                <th scope="col">Port</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for proxy in proxies %}
+            <tr>
+                <th scope="row">{{ loop.index }}</th>
+                <td>{{ proxy.host }} </td>
+                <td>{{ proxy.port }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
 {% endblock %}
