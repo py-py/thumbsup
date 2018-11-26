@@ -1,47 +1,20 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
-{% block content %}
-    <div class="d-flex justify-content-between">
-        <div class="p-0">
-            <h1>List of proxies</h1>
-        </div>
-
-        {% if current_user.is_authenticated %}
-            <div class="d-flex align-items-center p-0">
-                <a href="{{ url_for('proxy.add') }}">
-                    <button class="btn btn-success">Add Proxy</button>
-                </a>
+{% block header %}
+<section>
+    <!--Main Title Image -->
+        <header class="masthead">
+            <div class="container h-100">
+                <div class="row h-100 align-items-center">
+                    <div class="col-12 text-center">
+                        <h1 class="m-0 display-4">ThumbsUp JobTask Server</h1>
+                    </div>
+                </div>
             </div>
-        {% endif %}
+        </header>
+        <!--End Main Title Image -->
+</section>
+{% endblock %}
 
-    </div>
-    <table class="table table-striped table-bordered">
-        <thead>
-        <tr>
-            <th scope="col">#</th>
-            <th scope="col">Host</th>
-            <th scope="col">Port</th>
-            {% if current_user.is_authenticated %}
-                <th scope="col">Edit</th>
-            {% endif %}
-        </tr>
-        </thead>
-        <tbody>
-        {% for proxy in proxies %}
-            <tr>
-                <th scope="row">{{ loop.index }}</th>
-                <td>{{ proxy.host }} </td>
-                <td>{{ proxy.port }}</td>
-                {% if current_user.is_authenticated %}
-                    <th scope="col">
-                        <a href="{{ url_for('proxy.edit', proxy_id=proxy.id) }}">
-                            <span class="fas fa-pencil-alt text-dark"></span>
-                        </a>
-                    </th>
-                {% endif %}
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-
+{% block container %}
 {% endblock %}

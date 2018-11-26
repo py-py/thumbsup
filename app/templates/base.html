@@ -11,35 +11,26 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
+
 <body>
 <!-- Navigation -->
 {% include 'includes/navs.html' %}
 <!-- End Navigation -->
 
+{% block header %}
+{% endblock %}
 
-<!--Main Title Image -->
-{#<header class="masthead">#}
-{#    <div class="container h-100">#}
-{#        <div class="row h-100 align-items-center">#}
-{#            <div class="col-12 text-center">#}
-{#                <h1 class="m-0 display-4">Vertically Centered Masthead Content</h1>#}
-{#            </div>#}
-{#        </div>#}
-{#    </div>#}
-{#</header>#}
-<!--End Main Title Image -->
-
-<!-- Page Content -->
+{% block container %}
 <section class="py-5">
     <div class="container py-5">
         <!-- Flash -->
         {% include 'includes/flash.html' %}
         <!--End Flash -->
-
         {% block content %}
         {% endblock %}
     </div>
 </section>
+{% endblock %}
 
 </body>
 {% block scripts %}

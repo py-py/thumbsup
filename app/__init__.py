@@ -22,4 +22,7 @@ app.register_blueprint(auth_bp, url_prefix='/auth')
 from app.api import api_bp
 app.register_blueprint(api_bp, url_prefix='/api')
 
+from app.job import job_bp
+app.register_blueprint(job_bp, url_prefix='/job')
+
 from app import routes, models

@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from flask_login import UserMixin
 from sqlalchemy import UniqueConstraint
 from sqlalchemy.sql import ClauseElement
@@ -33,10 +35,21 @@ class Proxy(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     host = db.Column(db.String(15), index=True, nullable=False)
     port = db.Column(db.SmallInteger, nullable=False)
+    count_used = db.Column(db.Integer, default=0)
 
     __table_args__ = (
         UniqueConstraint('host', 'port', name='_host_port_uc'),
     )
+
+
+class Job(db.Model):
+    __tablename__ = 'jobs'
+    id = db.Column(db.Integer, primary_key=True)
+    url = db.Column(db.String(512), index=True, nullable=False)
+    like = db.Column(db.SmallInteger)
+    date = db.Column(db.DateTime, default=datetime.now())
+    period = db.Column(db.Integer, default=60*60)
+    status = db.Column(db.Boolean, default=False)
 
 
 def get_or_create(model, defaults=None, **kwargs):

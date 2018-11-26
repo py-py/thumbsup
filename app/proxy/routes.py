@@ -12,7 +12,7 @@ from ..models import Proxy, get_or_create
 @proxy_bp.route('/')
 def index():
     proxies = Proxy.query.all()
-    return render_template('index.html', title='Index', proxies=proxies)
+    return render_template('proxy/index.html', title='Index', proxies=proxies)
 
 
 @proxy_bp.route('/add', methods=['GET', 'POST'])
@@ -24,7 +24,7 @@ def add():
         port = form.port.data
 
         instance, _ = get_or_create(model=Proxy, host=host, port=port)
-        return redirect(url_for('index'))
+        return redirect(url_for('proxy.index'))
     return render_template('proxy/add.html', title='Adding proxy host', form=form)
 
 
@@ -45,4 +45,4 @@ def edit(proxy_id):
                 return redirect(url_for('index'))
             return redirect(url_for('index'))
         return render_template('proxy/edit.html', title='Editing proxy host', form=form, proxy=proxy)
-    return redirect(url_for('index'))
+    return redirect(url_for('proxy.index'))

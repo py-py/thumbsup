@@ -17,6 +17,7 @@ def generate_proxy_dict(proxy):
     return {
         'host': proxy.host,
         'port': proxy.port,
+        'count_used': proxy.count_used
     }
 
 
