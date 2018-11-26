@@ -23,7 +23,9 @@ def add():
         host = form.host.data
         port = form.port.data
 
-        instance, _ = get_or_create(model=Proxy, host=host, port=port)
+        instance, is_created = get_or_create(model=Proxy, host=host, port=port)
+        if is_created:
+            flash('Proxy was added.', category='success')
         return redirect(url_for('proxy.index'))
     return render_template('proxy/add.html', title='Adding proxy host', form=form)
 
@@ -32,17 +34,26 @@ def add():
 @login_required
 def edit(proxy_id):
     proxy = Proxy.query.filter_by(id=proxy_id).first()
-    if proxy:
-        form = ProxyForm(formdata=request.form, obj=proxy)
-        if form.validate_on_submit():
-            proxy.host = form.host.data
-            proxy.port = form.port.data
-            db.session.add(proxy)
-            try:
-                db.session.commit()
-            except IntegrityError as e:
-                flash('Сan not edit proxy, because the same proxy exist in database.', 'danger')
-                return redirect(url_for('index'))
-            return redirect(url_for('index'))
-        return render_template('proxy/edit.html', title='Editing proxy host', form=form, proxy=proxy)
+    form = ProxyForm(formdata=request.form, obj=proxy)
+    if form.validate_on_submit():
+        proxy.host = form.host.data
+        proxy.port = form.port.data
+        db.session.add(proxy)
+        try:
+            db.session.commit()
+            flash('Proxy was edited.', category='success')
+        except IntegrityError as e:
+            flash('Сan not edit proxy, because the same proxy exist in database.', category='danger')
+            return redirect(url_for('proxy.index'))
+        return redirect(url_for('proxy.index'))
+    return render_template('proxy/edit.html', title='Editing proxy host', form=form, proxy=proxy)
+
+
+@proxy_bp.route('/delete/<int:proxy_id>', methods=['GET', 'POST'])
+@login_required
+def delete(proxy_id):
+    proxy = Proxy.query.filter_by(id=proxy_id).first()
+    db.session.delete(proxy)
+    db.session.commit()
+    flash('Proxy was deleted.', category='info')
     return redirect(url_for('proxy.index'))

@@ -37,6 +37,9 @@
                         <a href="{{ url_for('proxy.edit', proxy_id=proxy.id) }}">
                             <span class="fas fa-pencil-alt text-dark"></span>
                         </a>
+                        <a href="{{ url_for('proxy.delete', proxy_id=proxy.id) }}">
+                            <span class="fas fa-trash-alt text-dark"></span>
+                        </a>
                     </th>
                 {% endif %}
             </tr>

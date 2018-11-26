@@ -41,6 +41,10 @@ class Proxy(db.Model):
         UniqueConstraint('host', 'port', name='_host_port_uc'),
     )
 
+    @property
+    def union(self):
+        return '{host}:{port}'.format(host=self.host, port=self.port)
+
 
 class Job(db.Model):
     __tablename__ = 'jobs'
