@@ -3,7 +3,7 @@ from sqlalchemy import UniqueConstraint
 from sqlalchemy.sql import ClauseElement
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from app import db, login
+from . import db, login
 
 
 @login.user_loader
@@ -47,5 +47,6 @@ def get_or_create(model, defaults=None, **kwargs):
         params = dict((k, v) for k, v in kwargs.items() if not isinstance(v, ClauseElement))
         params.update(defaults or {})
         instance = model(**params)
-        model.query.add(instance)
+        db.session.add(instance)
+        db.session.commit()
         return instance, True

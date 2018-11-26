@@ -8,16 +8,13 @@
         <title>Welcome to ThumbsUP!</title>
     {% endif %}
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
 <body>
 <!-- Navigation -->
 {% include 'includes/navs.html' %}
 <!-- End Navigation -->
-
-<!-- Flash -->
-{% include 'includes/flash.html' %}
-<!--End Flash -->
 
 
 <!--Main Title Image -->
@@ -35,6 +32,10 @@
 <!-- Page Content -->
 <section class="py-5">
     <div class="container py-5">
+        <!-- Flash -->
+        {% include 'includes/flash.html' %}
+        <!--End Flash -->
+
         {% block content %}
         {% endblock %}
     </div>
