@@ -2,13 +2,13 @@ from flask import render_template, flash, redirect, url_for, request
 from flask_login import login_user, current_user, logout_user
 from werkzeug.urls import url_parse
 
-from . import auth
+from . import auth_bp
 
 from .forms import LoginForm
 from ..models import User
 
 
-@auth.route('/login', methods=['GET', 'POST'])
+@auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
@@ -30,7 +30,7 @@ def login():
     return render_template('auth/login.html', title='Sign In', form=form)
 
 
-@auth.route('/logout')
+@auth_bp.route('/logout')
 def logout():
     logout_user()
     return redirect(url_for('index'))

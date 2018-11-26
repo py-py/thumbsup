@@ -2,20 +2,20 @@ from flask import render_template, flash, redirect, url_for, request
 from flask_login import login_required
 from sqlalchemy.exc import IntegrityError
 
-from . import proxy
+from . import proxy_bp
 from .. import db
 
 from .forms import ProxyForm
 from ..models import Proxy, get_or_create
 
 
-@proxy.route('/')
+@proxy_bp.route('/')
 def index():
     proxies = Proxy.query.all()
     return render_template('index.html', title='Index', proxies=proxies)
 
 
-@proxy.route('/add', methods=['GET', 'POST'])
+@proxy_bp.route('/add', methods=['GET', 'POST'])
 @login_required
 def add():
     form = ProxyForm()
@@ -28,7 +28,7 @@ def add():
     return render_template('proxy/add.html', title='Adding proxy host', form=form)
 
 
-@proxy.route('/edit/<int:proxy_id>', methods=['GET', 'POST'])
+@proxy_bp.route('/edit/<int:proxy_id>', methods=['GET', 'POST'])
 @login_required
 def edit(proxy_id):
     proxy = Proxy.query.filter_by(id=proxy_id).first()

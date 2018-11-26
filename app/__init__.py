@@ -13,10 +13,13 @@ migrate = Migrate(app, db)
 login = LoginManager(app)
 login.login_view = 'auth.login'
 
-from app.proxy import proxy
-app.register_blueprint(proxy, url_prefix='/proxy')
+from app.proxy import proxy_bp
+app.register_blueprint(proxy_bp, url_prefix='/proxy')
 
-from app.auth import auth
-app.register_blueprint(auth, url_prefix='/auth')
+from app.auth import auth_bp
+app.register_blueprint(auth_bp, url_prefix='/auth')
+
+from app.api import api_bp
+app.register_blueprint(api_bp, url_prefix='/api')
 
 from app import routes, models
