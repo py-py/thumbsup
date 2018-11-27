@@ -7,6 +7,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
 from app.models import Proxy, Job
+from app import celery
 
 __all__ = ('add_like', 'thumbs_up')
 
@@ -16,7 +17,7 @@ WAIT_SECONDS = 10
 CSS_SELECTOR = '.project-block--buttons .thumb a'
 
 
-@shared_task(name='thumbs_up:add_like')
+@celery.task(name='thumbs_up:add_like')
 def add_like(url, proxy):
     # TODO: remove?
     print('TEST MESSAGE for proxy:' + proxy)
@@ -40,7 +41,7 @@ def add_like(url, proxy):
     #     driver.quit()
 
 
-@shared_task(name='thumbs_up:main')
+@celery.task(name='thumbs_up:main')
 def thumbs_up(job_id):
     job = Job.query.filter_by(id=job_id).first()
 

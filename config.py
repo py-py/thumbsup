@@ -3,22 +3,45 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()
-_CELERY_BROKER_HOST = os.getenv('CELERY_BROKER_HOST')
-_CELERY_BROKER_PORT = os.getenv('CELERY_BROKER_PORT')
-_CELERY_BROKER_DB = os.getenv('CELERY_BROKER_DB')
+env = os.getenv('FLASK_ENV')
+
+CELERY_HOST = os.getenv('CELERY_HOST')
+CELERY_PORT = os.getenv('CELERY_PORT')
+CELERY_DB = os.getenv('CELERY_DB')
+
+DB_USERNAME = os.getenv('DB_USERNAME')
+DB_PASSWORD = os.getenv('DB_PASSWORD')
+DB_HOST = os.getenv('DB_HOST')
+DB_PORT = os.getenv('DB_PORT')
+DB_NAME = os.getenv('DB_NAME')
 
 basedir = os.path.abspath(os.path.dirname(__file__))
+broker_path = 'redis://{}:{}/{}'.format(CELERY_HOST, CELERY_PORT, CELERY_DB)
+db_path = 'mysql://{}:{}@{}:{}/{}'.format(DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME)
 
 
-class Config(object):
+class BaseConfig:
     SECRET_KEY = os.getenv('SECRET_KEY') or 'secret_key'
-    DEBUG = True
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///' + os.path.join(basedir, 'app.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    CELERY_BROKER_URL = f'redis://{_CELERY_BROKER_HOST}:{_CELERY_BROKER_PORT}/{_CELERY_BROKER_DB}'
-    CELERY_RESULT_BACKEND = f'redis://{_CELERY_BROKER_HOST}:{_CELERY_BROKER_PORT}/{_CELERY_BROKER_DB}'
+    CELERY_BROKER_URL = broker_path
+    CELERY_RESULT_BACKEND = broker_path
 
 
-class Production(Config):
+class DevelopmentConfig(BaseConfig):
+    DEBUG = True
+    # SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'thumbs.db')
+    SQLALCHEMY_DATABASE_URI = db_path
+
+
+class ProductionConfig(BaseConfig):
     DEBUG = False
+    SQLALCHEMY_DATABASE_URI = db_path
+
+
+if env == 'production':
+    Config = ProductionConfig
+elif env == 'development':
+    Config = DevelopmentConfig
+else:
+    raise Exception('environment ENVIRONMENT is not provided')

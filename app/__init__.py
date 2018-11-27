@@ -33,6 +33,7 @@ login.login_view = 'auth.login'
 register_blueprints(app)
 
 celery = make_celery(app)
+
 from .tasks import *
 from .signals import *
 from . import routes, models
