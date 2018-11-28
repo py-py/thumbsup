@@ -11,7 +11,7 @@
         <tr>
             <th scope="col">#</th>
             <th scope="col">Url</th>
-            <th scope="col">Like</th>
+            <th scope="col">Ordered Likes</th>
             <th scope="col">Date</th>
             <th scope="col">Period(sec)</th>
             <th scope="col">State</th>
@@ -22,7 +22,7 @@
             <tr>
                 <th scope="row">{{ loop.index }}</th>
                 <td>{{ job.url }} </td>
-                <td>{{ job.like }}</td>
+                <td>{{ job.ordered_likes }}</td>
                 <td>{{ job.date.strftime('%Y-%m-%d %H-%m') }}</td>
                 <td>{{ job.period }}</td>
                 <td>

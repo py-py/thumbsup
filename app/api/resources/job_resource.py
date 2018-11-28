@@ -16,7 +16,7 @@ def get_or_abort_if_proxy_doesnt_exist(proxy_id):
 def generate_job_dict(job):
     return {
         'url': job.url,
-        'like': job.like,
+        'likes': job.ordered_likes,
         'period': job.period,
         'date': int(job.date.timestamp() * 1000),
         'status': job.status
@@ -25,7 +25,7 @@ def generate_job_dict(job):
 
 parser = reqparse.RequestParser(bundle_errors=True)
 parser.add_argument('url', type=str, required=True, help='Url cannot be converted.')
-parser.add_argument('like', type=int, required=True, help='Like cannot be converted.')
+parser.add_argument('likes', type=int, required=True, help='Like cannot be converted.')
 parser.add_argument('period', type=int, required=True, help='Period cannot be converted.')
 
 
@@ -37,10 +37,10 @@ class JobListResource(Resource):
     def post(self):
         args = parser.parse_args()
         url = args['url']
-        like = args['like']
+        ordered_likes = args['likes']
         period = args['period']
 
-        job = Job(url=url, like=like, period=period)
+        job = Job(url=url, ordered_likes=ordered_likes, period=period)
         db.session.add(job)
         db.session.commit()
         return generate_job_dict(job), 201

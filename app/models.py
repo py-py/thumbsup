@@ -1,4 +1,5 @@
 from datetime import datetime
+from random import choice
 
 from flask_login import UserMixin
 from sqlalchemy import UniqueConstraint
@@ -13,12 +14,19 @@ def load_user(id):
     return User.query.get(int(id))
 
 
+proxies = db.Table(
+    'proxies',
+    db.Column('job_id', db.Integer, db.ForeignKey('job.id'), primary_key=True),
+    db.Column('proxy_id', db.Integer, db.ForeignKey('proxy.id'), primary_key=True)
+)
+
+
 class User(UserMixin, db.Model):
-    __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
+    is_superuser = db.Column(db.Boolean, default=False)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -31,10 +39,9 @@ class User(UserMixin, db.Model):
 
 
 class Proxy(db.Model):
-    __tablename__ = 'proxies'
     id = db.Column(db.Integer, primary_key=True)
     host = db.Column(db.String(15), index=True, nullable=False)
-    port = db.Column(db.SmallInteger, nullable=False)
+    port = db.Column(db.Integer, nullable=False)
     count_used = db.Column(db.Integer, default=0)
 
     __table_args__ = (
@@ -45,15 +52,35 @@ class Proxy(db.Model):
     def union(self):
         return '{host}:{port}'.format(host=self.host, port=self.port)
 
+    def __repr__(self):
+        return '{class_name}({host}:{port})'.format(class_name=self.__class__.__name__, host=self.host, port=self.port)
+
 
 class Job(db.Model):
-    __tablename__ = 'jobs'
     id = db.Column(db.Integer, primary_key=True)
     url = db.Column(db.String(512), index=True, nullable=False)
-    like = db.Column(db.SmallInteger)
     date = db.Column(db.DateTime, default=datetime.now())
-    period = db.Column(db.Integer, default=60*60)
-    status = db.Column(db.Boolean, default=False)
+    period = db.Column(db.Integer, default=60 * 60)
+
+    ordered_likes = db.Column(db.SmallInteger)
+    added_likes = db.Column(db.SmallInteger, default=0)
+
+    proxies = db.relationship('Proxy', secondary=proxies, lazy='subquery', backref=db.backref('jobs', lazy=True))
+
+    @property
+    def status(self):
+        return self.ordered_likes == self.added_likes
+
+    def get_free_proxy(self):
+        proxies_ids = {p.id for p in Proxy.query.all()}
+        proxies_obj = {p.id for p in self.proxies}
+        not_used_proxies = proxies_ids-proxies_obj
+        if len(not_used_proxies):
+            return Proxy.query.get(choice(not_used_proxies))
+        else:
+            # TODO : ???
+            raise Exception
+
 
 
 def get_or_create(model, defaults=None, **kwargs):
