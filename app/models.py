@@ -71,16 +71,20 @@ class Job(db.Model):
     def status(self):
         return self.ordered_likes == self.added_likes
 
-    def get_free_proxy(self):
+    @property
+    def free_proxy(self):
+        free_proxies = self.free_proxies
+
+        if len(free_proxies):
+            return choice(free_proxies)
+        raise Exception('Free proxies not exist for current job.')
+
+    @property
+    def free_proxies(self):
         proxies_ids = {p.id for p in Proxy.query.all()}
         proxies_obj = {p.id for p in self.proxies}
-        not_used_proxies = proxies_ids-proxies_obj
-        if len(not_used_proxies):
-            return Proxy.query.get(choice(not_used_proxies))
-        else:
-            # TODO : ???
-            raise Exception
-
+        not_used_proxies = proxies_ids - proxies_obj
+        return [Proxy.query.get(i) for i in not_used_proxies]
 
 
 def get_or_create(model, defaults=None, **kwargs):

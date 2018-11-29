@@ -34,11 +34,17 @@ def make_driver(proxy):
 
 @celery.task(bind=True, name='thumbs_up:add_like')
 def add_like(self, job_id, proxy_id):
-    if self.request.retries > 0:
-        # TODO: search a new proxy;
-        pass
     job = Job.query.filter_by(id=job_id).first()
     proxy = Proxy.query.filter_by(id=proxy_id).first()
+
+    if self.request.retries > 0:
+        try:
+            proxy = job.free_proxy
+        except Exception as e:
+            raise Exception('Job is stopped because free proxy for current job is not founded.')
+        job.proxies.append(proxy)
+        db.session.add(job)
+        db.session.commit()
 
     driver = make_driver(proxy)
     driver.get(job.url)
@@ -71,5 +77,6 @@ def thumbs_up(self, job_id):
     for proxy in proxies:
         job.proxies.append(proxy)
         db.session.add(job)
-        db.session.commit()
+        # TODO: uncomment
+        # db.session.commit()
         # add_like.apply_async((job.id, proxy.id), countdown=randint(0, job.period))

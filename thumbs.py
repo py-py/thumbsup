@@ -28,7 +28,7 @@ def create_superuser():
     except IntegrityError:
         print('User with email:"{}" or username:"{}" was added before.'.format(email, username))
     else:
-        print('Superuser added.')
+        print('SUCCESS: Superuser added.')
 
 
 @app.cli.command(short_help='Load proxies in database from file "proxy.csv".')
@@ -46,7 +46,7 @@ def load_proxies():
         except Exception as e:
             pass
         else:
-            print('{} is loaded.'.format(proxy))
+            print('SUCCESS: {} is loaded.'.format(proxy))
 
 
 @app.cli.command(short_help='Cache user agents in "/tmp" folder.')
@@ -57,4 +57,4 @@ def cache_useragent():
     except FakeUserAgentError:
         pass
     else:
-        print('Fake UserAgents is cached.')
+        print('SUCCESS: Fake UserAgents is cached.')
