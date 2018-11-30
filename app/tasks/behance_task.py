@@ -1,3 +1,4 @@
+import logging
 from random import randint
 from fake_useragent import UserAgent
 from selenium import webdriver
@@ -11,6 +12,7 @@ from app.models import Proxy, Job
 
 __all__ = ('add_like', 'thumbs_up')
 
+logger = logging.getLogger(__name__)
 # sudo sudo apt install chromium-chromedriver
 MIN_WAIT_SECONDS = 10
 MAX_WAIT_SECONDS = 20
@@ -32,7 +34,7 @@ def make_driver(proxy):
     return driver
 
 
-@celery.task(bind=True, name='thumbs_up:add_like')
+@celery.task(bind=True, name='thumbs_up:add_like', default_retry_delay=0, max_retries=None)
 def add_like(self, job_id, proxy_id):
     job = Job.query.filter_by(id=job_id).first()
     proxy = Proxy.query.filter_by(id=proxy_id).first()
@@ -40,8 +42,9 @@ def add_like(self, job_id, proxy_id):
     if self.request.retries > 0:
         try:
             proxy = job.free_proxy
-        except Exception as e:
-            raise Exception('Job is stopped because free proxy for current job is not founded.')
+        except Exception as exc:
+            logger.error('Job: {job.id} is stopped because free proxy for current job is not founded.'.format(job=job))
+            raise exc
         job.proxies.append(proxy)
         db.session.add(job)
         db.session.commit()
@@ -53,8 +56,12 @@ def add_like(self, job_id, proxy_id):
         element = WebDriverWait(driver, randint(MIN_WAIT_SECONDS, MAX_WAIT_SECONDS)) \
             .until(EC.presence_of_element_located((By.CSS_SELECTOR, CSS_SELECTOR)))
         element.click()
-    except (TimeoutException, ElementNotVisibleException) as e:
-        raise e
+    except TimeoutException as exc:
+        logger.error('Connect to job: {job.id} is not reachable with proxy: {proxy.id}'.format(proxy=proxy, job=job))
+        self.retry()
+    except ElementNotVisibleException as exc:
+        logger.error('Proxy: {proxy.id} was used before for current job: {job.id}'.format(proxy=proxy, job=job))
+        self.retry()
     else:
         job.added_likes += 1
         db.session.add(job)
@@ -73,10 +80,9 @@ def thumbs_up(self, job_id):
     if not job:
         raise Exception('Job {job_id} not found.'.format(job_id=job_id))
 
-    proxies = [p for p in Proxy.query.order_by('count_used').all()[:job.ordered_likes]]
+    proxies = sorted(job.free_proxies, key=lambda p: p.count_used)[:job.ordered_likes]
     for proxy in proxies:
         job.proxies.append(proxy)
         db.session.add(job)
-        # TODO: uncomment
-        # db.session.commit()
-        # add_like.apply_async((job.id, proxy.id), countdown=randint(0, job.period))
+        db.session.commit()
+        add_like.apply_async((job.id, proxy.id), countdown=randint(0, job.period))

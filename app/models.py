@@ -69,7 +69,7 @@ class Job(db.Model):
 
     @property
     def status(self):
-        return self.ordered_likes == self.added_likes
+        return self.added_likes >= self.ordered_likes
 
     @property
     def free_proxy(self):
