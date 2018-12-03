@@ -1,7 +1,6 @@
-from sqlalchemy.exc import IntegrityError
-
 from app import app, db
 from app.models import User, Proxy, Job
+from sqlalchemy.exc import IntegrityError
 
 
 @app.shell_context_processor
@@ -31,6 +30,13 @@ def create_superuser():
         print('SUCCESS: Superuser added.')
 
 
+@app.cli.command(short_help='Download proxies in database from API.')
+def download_proxies():
+    from app.tasks import download_proxy
+    download_proxy.delay()
+    print('SUCCESS: Proxies are downloaded.')
+
+
 @app.cli.command(short_help='Load proxies in database from file "proxy.csv".')
 def load_proxies():
     import csv
@@ -47,6 +53,17 @@ def load_proxies():
             pass
         else:
             print('SUCCESS: {} is loaded.'.format(proxy))
+
+
+@app.cli.command(short_help='Load proxies in database from file "proxy.csv".')
+def dump_proxies():
+    import csv
+    from app.models import Proxy
+    with open('proxy.csv', 'w') as file:
+        writer = csv.writer(file, delimiter=';')
+        for proxy in Proxy.query.all():
+            writer.writerow([proxy.host, proxy.port])
+    print('SUCCESS: Proxies are dumped.')
 
 
 @app.cli.command(short_help='Cache user agents in "/tmp" folder.')

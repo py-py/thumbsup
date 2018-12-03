@@ -17,7 +17,8 @@ def load_user(id):
 proxies = db.Table(
     'proxies',
     db.Column('job_id', db.Integer, db.ForeignKey('job.id'), primary_key=True),
-    db.Column('proxy_id', db.Integer, db.ForeignKey('proxy.id'), primary_key=True)
+    db.Column('proxy_id', db.Integer, db.ForeignKey('proxy.id'), primary_key=True),
+    db.Column('is_success', db.Boolean)
 )
 
 
