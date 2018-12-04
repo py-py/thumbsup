@@ -37,35 +37,6 @@ def download_proxies():
     print('SUCCESS: Proxies are downloaded.')
 
 
-@app.cli.command(short_help='Load proxies in database from file "proxy.csv".')
-def load_proxies():
-    import csv
-
-    with open('proxy.csv', newline='') as f:
-        reader = csv.reader(f, delimiter=';')
-        proxies = [Proxy(host=row[0], port=int(row[1])) for row in reader]
-
-    for proxy in proxies:
-        db.session.add(proxy)
-        try:
-            db.session.commit()
-        except Exception as e:
-            pass
-        else:
-            print('SUCCESS: {} is loaded.'.format(proxy))
-
-
-@app.cli.command(short_help='Load proxies in database from file "proxy.csv".')
-def dump_proxies():
-    import csv
-    from app.models import Proxy
-    with open('proxy.csv', 'w') as file:
-        writer = csv.writer(file, delimiter=';')
-        for proxy in Proxy.query.all():
-            writer.writerow([proxy.host, proxy.port])
-    print('SUCCESS: Proxies are dumped.')
-
-
 @app.cli.command(short_help='Cache user agents in "/tmp" folder.')
 def cache_useragent():
     from fake_useragent import UserAgent, FakeUserAgentError

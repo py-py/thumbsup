@@ -14,12 +14,18 @@ def load_user(id):
     return User.query.get(int(id))
 
 
-proxies = db.Table(
-    'proxies',
-    db.Column('job_id', db.Integer, db.ForeignKey('job.id'), primary_key=True),
-    db.Column('proxy_id', db.Integer, db.ForeignKey('proxy.id'), primary_key=True),
-    db.Column('is_success', db.Boolean)
-)
+class Association(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    job_id = db.Column(db.ForeignKey('job.id'))
+    proxy_id = db.Column(db.ForeignKey('proxy.id'))
+    is_success = db.Column(db.Boolean, default=False)
+
+    job = db.relationship('Job', backref='associations')
+    proxy = db.relationship('Proxy', backref='associations')
+
+    __table_args__ = (
+        UniqueConstraint('job_id', 'proxy_id'),
+    )
 
 
 class User(UserMixin, db.Model):
@@ -46,7 +52,7 @@ class Proxy(db.Model):
     count_used = db.Column(db.Integer, default=0)
 
     __table_args__ = (
-        UniqueConstraint('host', 'port', name='_host_port_uc'),
+        UniqueConstraint('host', 'port'),
     )
 
     @property
@@ -64,28 +70,39 @@ class Job(db.Model):
     period = db.Column(db.Integer, default=60 * 60)
 
     ordered_likes = db.Column(db.SmallInteger)
-    added_likes = db.Column(db.SmallInteger, default=0)
 
-    proxies = db.relationship('Proxy', secondary=proxies, lazy='subquery', backref=db.backref('jobs', lazy=True))
+    proxies = db.relationship('Proxy',
+                              secondary=Association.__table__,
+                              primaryjoin="Job.id==Association.job_id",
+                              backref="jobs")
+    @property
+    def added_likes(self):
+        return len([a for a in self.associations if a.is_success])
 
     @property
     def status(self):
         return self.added_likes >= self.ordered_likes
 
-    @property
-    def free_proxy(self):
-        free_proxies = self.free_proxies
+    def get_free_proxy(self):
+        free_proxies = self.get_free_proxies()
 
         if len(free_proxies):
             return choice(free_proxies)
         raise Exception('Free proxies not exist for current job.')
 
-    @property
-    def free_proxies(self):
+    def get_free_proxies(self):
         proxies_ids = {p.id for p in Proxy.query.all()}
         proxies_obj = {p.id for p in self.proxies}
         not_used_proxies = proxies_ids - proxies_obj
         return [Proxy.query.get(i) for i in not_used_proxies]
+
+    @property
+    def success_used_proxies(self):
+        return [Proxy.query.get(a.proxy_id) for a in self.associations if a.is_success]
+
+    @property
+    def failed_used_proxies(self):
+        return [Proxy.query.get(a.proxy_id) for a in self.associations if not a.is_success]
 
 
 def get_or_create(model, defaults=None, **kwargs):

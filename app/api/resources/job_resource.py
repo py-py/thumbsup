@@ -26,7 +26,8 @@ def generate_job_dict(job):
 parser = reqparse.RequestParser(bundle_errors=True)
 parser.add_argument('url', type=str, required=True, help='Url cannot be converted.')
 parser.add_argument('likes', type=int, required=True, help='Like cannot be converted.')
-parser.add_argument('period', type=int, required=True, help='Period cannot be converted.')
+# TODO: temporary
+# parser.add_argument('period', type=int, required=True, help='Period cannot be converted.')
 
 
 class JobListResource(Resource):
@@ -38,7 +39,7 @@ class JobListResource(Resource):
         args = parser.parse_args()
         url = args['url']
         ordered_likes = args['likes']
-        period = args['period']
+        period = args.get('period', 60*1)
 
         job = Job(url=url, ordered_likes=ordered_likes, period=period)
         db.session.add(job)

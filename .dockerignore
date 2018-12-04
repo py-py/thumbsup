@@ -1,0 +1,14 @@
+# Python files
+__pycache__/*
+
+# GIT files
+.git/*
+.gitignore/*
+
+# Dockers files
+.dockerignore
+Dockerfile
+docker-compose.yml
+
+# Other files
+.idea/*

@@ -9,36 +9,40 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: thumbs
-    volumes:
-      - ./data:/var/lib/mysql
-    ports:
-      - 3306:3306
+      MYSQL_DATABASE: thumbsup
+#    volumes:
+#      - ./data:/var/lib/mysql
 
   redis:
     image: "redis:latest"
     container_name: thumbsup-redis
 
-  bot:
-    build: ./bot
-    image: thumbsup-bot-image
-    container_name: thumbsup-bot
+  web:
+    build: .
+    image: thumbsup-web-image
+    container_name: thumbsup-web
     restart: always
-    environment:
-      BOT_URL: t.me/ThumpsUpBot
-      BOT_TOKEN: 778885705:AAH-Bl8SRT0EHts3TZmY-5clOYHjjO7_Jew1000
+    env_file:
+      - .env
     depends_on:
       - redis
       - db
+    ports:
+      - 9000:5000
+      - 9001:5555
 
-  celery:
-    build: ./tasks
-    image: thumbsup-celery-image
-    container_name: thumbsup-celery
-    restart: always
-    depends_on:
-      - redis
-      - db
+#  bot:
+#    build: ./bot
+#    image: thumbsup-bot-image
+#    container_name: thumbsup-bot
+#    restart: always
+#    environment:
+#      BOT_URL: t.me/ThumpsUpBot
+#      BOT_TOKEN: 778885705:AAH-Bl8SRT0EHts3TZmY-5clOYHjjO7_Jew1000
+#    depends_on:
+#      - redis
+#      - db
+#      - web
 
 # docker-compose rm -fs
 # docker image rm $(docker images thumbsup* -q) -f
