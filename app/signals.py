@@ -8,4 +8,4 @@ __all__ = ('signal_job_after',)
 
 @event.listens_for(Job, 'after_insert')
 def signal_job_after(mapper, connection, target):
-    thumbs_up.delay(target.id)
+    thumbs_up.apply_async((target.id, ), countdown=3)
