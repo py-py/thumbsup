@@ -13,4 +13,4 @@ flask cache-useragent
 
 exec celery worker -A app.celery -c 8 --logfile - &
 exec flower -A app.celery &
-exec gunicorn -b :5000 --access-logfile - --error-logfile - thumbsup:app
+exec gunicorn -b :${FLASK_PORT} --access-logfile - --error-logfile - thumbsup:app

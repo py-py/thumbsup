@@ -89,6 +89,6 @@ def thumbs_up(self, job_id):
     if not job:
         raise Exception('Job {job_id} not found.'.format(job_id=job_id))
 
-    proxies = sorted(job.free_proxies, key=lambda p: p.count_used)[:job.ordered_likes]
+    proxies = sorted(job.get_free_proxies(), key=lambda p: p.count_used)[:job.ordered_likes]
     for proxy in proxies:
         add_like.apply_async((job.id, proxy.id), countdown=randint(0, job.period))

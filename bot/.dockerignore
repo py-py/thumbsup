@@ -1,5 +1,8 @@
+# ENVs
+.env
+
 # Python files
-venv/
+venv/*
 __pycache__/*
 
 # GIT files
