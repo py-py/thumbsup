@@ -32,13 +32,6 @@ login.login_view = 'auth.login'
 register_blueprints(app)
 celery = make_celery(app)
 
-celery.conf.beat_schedule = {
-    'download_proxy': {
-        'task': 'proxy:main',
-        'schedule': 60 * 10,
-    },
-}
-
 from .tasks import *
 from .signals import *
 from . import routes, models

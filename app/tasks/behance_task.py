@@ -6,6 +6,7 @@ from selenium.common.exceptions import TimeoutException, ElementNotVisibleExcept
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
+from pyvirtualdisplay import Display
 
 from app import celery, db
 from app.models import Proxy, Job, Association
@@ -13,7 +14,7 @@ from app.models import Proxy, Job, Association
 __all__ = ('add_like', 'thumbs_up')
 
 logger = logging.getLogger(__name__)
-# sudo sudo apt install chromium-chromedriver
+
 MIN_WAIT_SECONDS = 10
 MAX_WAIT_SECONDS = 20
 CSS_SELECTOR = '.project-block--buttons .thumb a'
@@ -23,6 +24,8 @@ def make_driver(proxy):
     user_agent = UserAgent()
     options = webdriver.ChromeOptions()
     options.add_argument('headless')
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-dev-shm-usage')
     options.add_argument('--proxy-server=http://{}'.format(proxy.union))
     options.add_argument(user_agent.chrome)
 
@@ -34,7 +37,7 @@ def make_driver(proxy):
         chrome_options=options,
         executable_path='/usr/lib/chromium-browser/chromedriver'
     )
-    driver.set_window_size(randint(800, 1400), randint(600, 1000))
+    # driver.set_window_size(randint(800, 1400), randint(600, 1000))
     return driver
 
 
@@ -55,6 +58,8 @@ def add_like(self, job_id, proxy_id):
     db.session.add(job)
     db.session.commit()
 
+    display = Display(visible=0)
+    display.start()
     driver = make_driver(proxy)
     driver.get(job.url)
 
@@ -80,6 +85,7 @@ def add_like(self, job_id, proxy_id):
         db.session.add(proxy)
         db.session.commit()
         driver.quit()
+        display.stop()
 
 
 @celery.task(bind=True, name='thumbs_up:main')

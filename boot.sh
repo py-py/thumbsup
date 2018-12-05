@@ -12,5 +12,6 @@ flask download-proxies
 flask cache-useragent
 
 exec celery worker -A app.celery -c 8 --logfile - &
+exec celery beat -A app.celery --logfile - &
 exec flower -A app.celery &
 exec gunicorn -b :${FLASK_PORT} --access-logfile - --error-logfile - thumbsup:app

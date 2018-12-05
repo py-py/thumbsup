@@ -7,6 +7,7 @@ def make_celery(app):
         backend=app.config['CELERY_RESULT_BACKEND'],
         broker=app.config['CELERY_BROKER_URL'],
     )
+
     # celery.conf.update(app.config)
 
     class ContextTask(celery.Task):
@@ -15,4 +16,10 @@ def make_celery(app):
                 return self.run(*args, **kwargs)
 
     celery.Task = ContextTask
+    celery.conf.beat_schedule = {
+        'download_proxy': {
+            'task': 'proxy:main',
+            'schedule': 60 * 10,
+        },
+    }
     return celery

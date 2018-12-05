@@ -1,5 +1,4 @@
-FROM rusvaleev/ubuntu-chrome
-
+FROM rusvaleev/ubuntu-chromedriver
 
 WORKDIR /home/thumbsup
 
