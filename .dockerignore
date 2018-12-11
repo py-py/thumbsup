@@ -1,4 +1,5 @@
 # Python files
+bot/
 venv/
 __pycache__/*
 

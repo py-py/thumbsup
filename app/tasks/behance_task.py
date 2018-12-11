@@ -15,8 +15,7 @@ __all__ = ('add_like', 'thumbs_up')
 
 logger = logging.getLogger(__name__)
 
-MIN_WAIT_SECONDS = 10
-MAX_WAIT_SECONDS = 20
+DRIVER_WAIT_SECONDS = 30
 CSS_SELECTOR = '.project-block--buttons .thumb a'
 
 
@@ -61,10 +60,10 @@ def add_like(self, job_id, proxy_id):
     display = Display(visible=0)
     display.start()
     driver = make_driver(proxy)
-    driver.get(job.url)
 
     try:
-        element = WebDriverWait(driver, randint(MIN_WAIT_SECONDS, MAX_WAIT_SECONDS)) \
+        driver.get(job.url)
+        element = WebDriverWait(driver, DRIVER_WAIT_SECONDS) \
             .until(EC.presence_of_element_located((By.CSS_SELECTOR, CSS_SELECTOR)))
         element.click()
     except TimeoutException as exc:
@@ -97,4 +96,6 @@ def thumbs_up(self, job_id):
 
     proxies = sorted(job.get_free_proxies(), key=lambda p: p.count_used)[:job.ordered_likes]
     for proxy in proxies:
-        add_like.apply_async((job.id, proxy.id), countdown=randint(0, job.period))
+        # TODO: temporary for debugging;
+        # add_like.apply_async((job.id, proxy.id), countdown=randint(0, job.period))
+        add_like.apply_async((job.id, proxy.id), countdown=randint(0, 0))

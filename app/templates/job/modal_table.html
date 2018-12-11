@@ -1,0 +1,20 @@
+<table>
+    <thead>
+    <tr>
+        <th>#</th>
+        <th>Host</th>
+        <th>Port</th>
+        <th>Success</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for item in data %}
+    <tr>
+        <th>{{ loop.index }}</th>
+        <th>{{ item['host'] }}</th>
+        <th>{{ item['port'] }}</th>
+        <th>{{ item['is_success'] }}</th>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
