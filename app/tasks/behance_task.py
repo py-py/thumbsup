@@ -15,8 +15,8 @@ __all__ = ('add_like', 'thumbs_up')
 
 logger = logging.getLogger(__name__)
 
-DRIVER_WAIT_SECONDS = 30
-CSS_SELECTOR = '.project-block--buttons .thumb a'
+DRIVER_WAIT_SECONDS = 60
+XPATH_SELECTOR = '//div[@id="project-canvas"]/following-sibling::div//div[@data-adobe-analytics="AppreciateClick"]'
 
 
 def make_driver(proxy):
@@ -63,8 +63,8 @@ def add_like(self, job_id, proxy_id):
 
     try:
         driver.get(job.url)
-        element = WebDriverWait(driver, DRIVER_WAIT_SECONDS) \
-            .until(EC.presence_of_element_located((By.CSS_SELECTOR, CSS_SELECTOR)))
+        element = WebDriverWait(driver, DRIVER_WAIT_SECONDS)\
+            .until(EC.presence_of_element_located((By.XPATH, XPATH_SELECTOR)))
         element.click()
     except TimeoutException as exc:
         logger.error('Connect to job: {job.id} is not reachable with proxy: {proxy.id}'.format(proxy=proxy, job=job))

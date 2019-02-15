@@ -7,9 +7,9 @@ services:
     container_name: thumbsup-db
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: thumbsup
+      MYSQL_ROOT_PASSWORD: ${DB_USERNAME}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
 
   redis:
     image: redis
