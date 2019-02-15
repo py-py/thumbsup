@@ -1,0 +1,18 @@
+# ENVs
+.env
+
+# Python files
+venv/*
+__pycache__/*
+
+# GIT files
+.git/*
+.gitignore/*
+
+# Dockers files
+.dockerignore
+Dockerfile
+docker-compose.yml
+
+# Other files
+.idea/*

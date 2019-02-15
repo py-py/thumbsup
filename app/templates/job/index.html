@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="d-flex justify-content-between">
+        <div class="p-0">
+            <h1>List of jobs</h1>
+        </div>
+    </div>
+
+    <table class="table table-striped table-bordered">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Url</th>
+            <th scope="col">Order</th>
+            <th scope="col">Added</th>
+            <th scope="col">Date</th>
+            <th scope="col">Period(sec)</th>
+            <th scope="col">Status</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for job in jobs %}
+            <tr>
+                <th scope="row">{{ loop.index }}</th>
+                <td>{{ job.url }} </td>
+                <td>{{ job.ordered_likes }}</td>
+                <td>{{ job.added_likes }}</td>
+                <td>{{ job.date.strftime('%Y-%m-%d %H-%m') }}</td>
+                <td>{{ job.period }}</td>
+                <td>
+                    {% if job.status %}
+                        <button class="btn btn-sm btn-success" data-job-id="{{ job.id }}" data-toggle="modal"
+                                data-target="#jobProxyModal">Done
+                        </button>
+                    {% else %}
+                        <button class="btn btn-sm btn-secondary" data-job-id="{{ job.id }}" data-toggle="modal"
+                                data-target="#jobProxyModal">Not done
+                        </button>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% include "job/includes/modal.html" %}
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script>
+        $(document).ready(function () {
+            $('#jobProxyModal').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget);
+                var jobID = button.data('jobid');
+                $('.modal-body').on('load', '{{ url_for("job.get_proxies_job") }}', {'jobID': jobID});
+            });
+        })
+    </script>
+{% endblock %}

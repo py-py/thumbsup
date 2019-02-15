@@ -1,0 +1,42 @@
+version: '3.7'
+
+services:
+  db:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    container_name: thumbsup-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_USERNAME}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+
+  redis:
+    image: redis
+    container_name: thumbsup-redis
+
+  web:
+    build: .
+    image: thumbsup-web
+    container_name: thumbsup-web
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - db
+    ports:
+      - 9000:5000
+      - 9001:5555
+
+  bot:
+    build: ./bot
+    image: thumbsup-bot
+    container_name: thumbsup-bot
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - db
+      - web
